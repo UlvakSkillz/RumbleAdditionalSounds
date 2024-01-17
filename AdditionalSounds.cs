@@ -90,7 +90,6 @@ namespace RumbleSoundsOnSceneChange
                 }
                 else
                 {
-                    MelonLogger.Msg("Y: " + player.transform.position.y);
                     //if listening to make the too low sound
                     if (tooLowSoundListen)
                     {
@@ -146,7 +145,7 @@ namespace RumbleSoundsOnSceneChange
                     tooLowRespawnHeight = -3;
                     tooLowHeight = -11;
                     tooHighRespawnHeight = 4f;
-                    tooHighHeight = 26f;
+                    tooHighHeight = 26;
                     PlaySoundIfFileExists(FilePaths[4], 0);
                     break;
                 case "Map0": //if currentScene is the ring
@@ -158,7 +157,7 @@ namespace RumbleSoundsOnSceneChange
                         tooLowRespawnHeight = 0;
                         tooLowHeight = -6;
                         tooHighRespawnHeight = 1;
-                        tooHighHeight = 12.5f;
+                        tooHighHeight = 14.5f;
                     }
                     //if pit
                     else if (currentScene == "Map1")
@@ -167,7 +166,7 @@ namespace RumbleSoundsOnSceneChange
                         tooLowRespawnHeight = 0;
                         tooLowHeight = -6;
                         tooHighRespawnHeight = 1;
-                        tooHighHeight = 12.75f;
+                        tooHighHeight = 13.25f;
                     }
                     switch (lastScene)
                     {
