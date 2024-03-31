@@ -206,9 +206,12 @@ namespace RumbleSoundsOnSceneChange
                 return;
             }
             //if under 8 health
-            else if (localPlayer.Data.HealthPoints <= 7)
+            else if ((localPlayer.Data.HealthPoints <= 7))
             {
-                playHeartbeat = true;
+                if ((currentScene == "Map0") || (currentScene == "Map1"))
+                {
+                    playHeartbeat = true;
+                }
             }
             //if health changed
             if (localPlayer.Data.HealthPoints != localPlayerHealth)
