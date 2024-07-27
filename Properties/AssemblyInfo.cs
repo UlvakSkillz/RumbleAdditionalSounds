@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 using MelonLoader;
 using RumbleSoundsOnSceneChange; // The namespace of your mod class
 // ...
-[assembly: MelonInfo(typeof(AdditionalSounds), "Additional Sounds", "1.0.6", "UlvakSkillz")]
+[assembly: MelonInfo(typeof(AdditionalSounds), "Additional Sounds", "2.2.1", "UlvakSkillz")]
 [assembly: MelonGame("Buckethead Entertainment", "RUMBLE")]
-[assembly: MelonColor(ConsoleColor.Magenta)]
-[assembly: MelonAuthorColor(ConsoleColor.Magenta)]
-[assembly: VerifyLoaderVersion(0, 5, 7)]
+[assembly: MelonColor(255, 195, 0, 255)]
+[assembly: MelonAuthorColor(255, 195, 0, 255)]
+[assembly: VerifyLoaderVersion(0, 6, 2, true)]
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
