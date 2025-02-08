@@ -10,22 +10,29 @@ using MelonLoader.Utils;
 using NAudio.Wave;
 using HarmonyLib;
 using Il2CppRUMBLE.Poses;
+using RumbleModUI;
 
 namespace RumbleSoundsOnSceneChange
 {
-
     public class AdditionalSounds : MelonMod
     {
+        private void Log(string msg)
+        {
+            MelonLogger.Msg(msg);
+        }
 
         [HarmonyPatch(typeof(PlayerPoseSystem), "OnPoseSetCompleted", new Type[] { typeof(PoseSet) })]
         private static class PosePatch
         {
             private static void Postfix(PoseSet set)
             {
-                PlayMoveName(set.name);
+                if (toggles[0])
+                {
+                    PlayMoveName(set.name);
+                }
             }
         }
-
+        
         //File Paths
         private static string[] FilePaths = new string[27];
         public static string[] moveFileNames = new string[16];
@@ -50,6 +57,11 @@ namespace RumbleSoundsOnSceneChange
         bool finishedHealingAfterDeath = false;
         bool checkHealth = false;
         bool endHealingCheck = false;
+        UI UI = UI.instance;
+        public Mod RumbleAdditionalSounds = new Mod();
+        private static bool[] toggles = new bool[7] { true, true, true, true, true, true, true};
+        private static int Volume = 100;
+        private static WaveOutEvent waveOut;
 
         public static void PlayMoveName(string poseName)
         {
@@ -143,7 +155,7 @@ namespace RumbleSoundsOnSceneChange
         }
 
         //initializes things
-        public override void OnInitializeMelon()
+        public override void OnLateInitializeMelon()
         {
             //set File Paths
             FilePaths[0] = @"\AdditionalSounds\GameLoadSound.mp3";
@@ -199,7 +211,7 @@ namespace RumbleSoundsOnSceneChange
             {
                 if (!System.IO.File.Exists(MelonEnvironment.UserDataDirectory + path))
                 {
-                    MelonLogger.Msg("(Optional) Sound File does not Exist at File Path: " + path);
+                    Log("(Optional) Sound File does not Exist at File Path: " + path);
                     fileExists[i] = false;
                 }
                 else
@@ -212,7 +224,7 @@ namespace RumbleSoundsOnSceneChange
             {
                 if (!System.IO.File.Exists(MelonEnvironment.UserDataDirectory + path))
                 {
-                    MelonLogger.Msg("(Optional) Sound File does not Exist at File Path: " + path);
+                    Log("(Optional) Sound File does not Exist at File Path: " + path);
                     fileExists[i] = false;
                 }
                 else
@@ -221,7 +233,50 @@ namespace RumbleSoundsOnSceneChange
                 }
                 i++;
             }
-            MelonLogger.Msg("Initialized");
+            RumbleAdditionalSounds.ModName = "Additional Sounds";
+            RumbleAdditionalSounds.ModVersion = "2.4.0";
+            RumbleAdditionalSounds.SetFolder("AdditionalSounds");
+            RumbleAdditionalSounds.AddToList("Poses", true, 0, "Toggles Pose Sounds from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Scene Change", true, 0, "Toggles Scene Change Sounds from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Taking Damage", true, 0, "Toggles Taking Damage Sounds from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Dealing Damage", true, 0, "Toggles Dealing Damage Sounds from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Kill Boundarys", true, 0, "Toggles Too High/Low Sounds from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Low Health", true, 0, "Toggles Low Health Sound from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Healing", true, 0, "Toggles Healing Sound from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Volume", 100, "Sets the Volume 1-100", new Tags { });
+            RumbleAdditionalSounds.GetFromFile();
+            RumbleAdditionalSounds.ModSaved += Save;
+            UI.instance.UI_Initialized += UIInit;
+            Save();
+            Log("Initialized");
+            if (fileExists[0] && toggles[1])
+            {
+                PlaySound(FilePaths[0], (float)Volume);
+            }
+        }
+
+        public void UIInit()
+        {
+            UI.AddMod(RumbleAdditionalSounds);
+        }
+
+        public void Save()
+        {
+            for (int i = 0; i < RumbleAdditionalSounds.Settings.Count-1; i++)
+            {
+                toggles[i] = (bool)RumbleAdditionalSounds.Settings[i].SavedValue;
+            }
+            if ((int)RumbleAdditionalSounds.Settings[7].SavedValue < 0)
+            {
+                RumbleAdditionalSounds.Settings[7].SavedValue = 0;
+                RumbleAdditionalSounds.Settings[7].Value = 0;
+            }
+            else if ((int)RumbleAdditionalSounds.Settings[7].SavedValue > 100)
+            {
+                RumbleAdditionalSounds.Settings[7].SavedValue = 100;
+                RumbleAdditionalSounds.Settings[7].Value = 100;
+            }
+            Volume = (int)RumbleAdditionalSounds.Settings[7].SavedValue;
         }
 
         //run every update
@@ -251,58 +306,61 @@ namespace RumbleSoundsOnSceneChange
                                     {
                                         return;
                                     }
-                                    switch (remotePlayerHealth - PlayerManager.instance.AllPlayers[1].Data.HealthPoints)
+                                    if (toggles[3])
                                     {
-                                        case 0:
-                                            break;
-                                        case 1:
-                                            if (fileExists[10])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[10], 0);
-                                            }
-                                            break;
-                                        case 2:
-                                            if (fileExists[14])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[14], 0);
-                                            }
-                                            break;
-                                        case 3:
-                                            if (fileExists[16])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[16], 0);
-                                            }
-                                            break;
-                                        case 4:
-                                            if (fileExists[18])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[18], 0);
-                                            }
-                                            break;
-                                        case 5:
-                                            if (fileExists[20])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[20], 0);
-                                            }
-                                            break;
-                                        case 6:
-                                            if (fileExists[22])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[22], 0);
-                                            }
-                                            break;
-                                        case 7:
-                                            if (fileExists[24])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[24], 0);
-                                            }
-                                            break;
-                                        default:
-                                            if (fileExists[26])
-                                            {
-                                                PlaySoundIfFileExists(FilePaths[26], 0);
-                                            }
-                                            break;
+                                        switch (remotePlayerHealth - PlayerManager.instance.AllPlayers[1].Data.HealthPoints)
+                                        {
+                                            case 0:
+                                                break;
+                                            case 1:
+                                                if (fileExists[10])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[10], 0);
+                                                }
+                                                break;
+                                            case 2:
+                                                if (fileExists[14])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[14], 0);
+                                                }
+                                                break;
+                                            case 3:
+                                                if (fileExists[16])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[16], 0);
+                                                }
+                                                break;
+                                            case 4:
+                                                if (fileExists[18])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[18], 0);
+                                                }
+                                                break;
+                                            case 5:
+                                                if (fileExists[20])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[20], 0);
+                                                }
+                                                break;
+                                            case 6:
+                                                if (fileExists[22])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[22], 0);
+                                                }
+                                                break;
+                                            case 7:
+                                                if (fileExists[24])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[24], 0);
+                                                }
+                                                break;
+                                            default:
+                                                if (fileExists[26])
+                                                {
+                                                    PlaySoundIfFileExists(FilePaths[26], 0);
+                                                }
+                                                break;
+                                        }
                                     }
                                     remotePlayerHealth = PlayerManager.instance.AllPlayers[1].Data.HealthPoints;
                                     if (remotePlayerHealth == 0)
@@ -310,27 +368,34 @@ namespace RumbleSoundsOnSceneChange
                                         MelonCoroutines.Start(WaitForHealingOnRoundChange(1));
                                     }
                                 }));
+                                enemyHealth.onHealthGained.AddListener(new Action<short>(component =>
+                                {
+                                    remotePlayerHealth = PlayerManager.instance.AllPlayers[1].Data.HealthPoints;
+                                }));
                             }
                         }
                         localPlayer = PlayerManager.instance.localPlayer;
                         //initializes local player fields
-                        player = localPlayer.Controller.gameObject.transform.GetChild(2).GetChild(13).GetChild(0).gameObject;
+                        player = localPlayer.Controller.gameObject.transform.GetChild(5).GetChild(5).GetChild(0).gameObject;
                         //set the local health
                         localPlayerHealth = localPlayer.Data.HealthPoints;
                     }
-                    catch{ }
+                    catch { }
                 }
                 else
                 {
-                    //if listening to make the too low sound
-                    if (tooLowSoundListen)
+                    if (toggles[4])
                     {
-                        CheckForTooLow();
-                    }
-                    //if listening to make the too high sound
-                    if (tooHighSoundListen)
-                    {
-                        CheckForTooHigh();
+                        //if listening to make the too low sound
+                        if (tooLowSoundListen)
+                        {
+                            CheckForTooLow();
+                        }
+                        //if listening to make the too high sound
+                        if (tooHighSoundListen)
+                        {
+                            CheckForTooHigh();
+                        }
                     }
                     if (checkHealth)
                     {
@@ -355,93 +420,89 @@ namespace RumbleSoundsOnSceneChange
             checkHealth = false;
             endHealingCheck = true;
             MelonCoroutines.Start(WaitForHealthCheckAfterSceneChange());
-            //Do things dependent on currentScene and lastScene
-            switch (currentScene)
+            if (toggles[1])
             {
-                case "Loader": //if currentScene is loader (t-pose start screen)
-
-                    if (fileExists[0])
-                    {
-                        PlaySoundIfFileExists(FilePaths[0], 0);
-                    }
-                    break;
-                case "Gym": //if currentScene is gym
-                    //set height limits for sounds
-                    tooLowRespawnHeight = 0;
-                    tooLowHeight = -10;
-                    tooHighRespawnHeight = 1;
-                    tooHighHeight = 22;
-                    switch (lastScene)
-                    {
-                        case "Loader": //if lastScene is the loader
-                            if (fileExists[1])
-                            {
-                                PlaySoundIfFileExists(FilePaths[1], 0);
-                            }
-                            break;
-                        case "Park": //if lastScene is the park
-                            if (fileExists[2])
-                            {
-                                PlaySoundIfFileExists(FilePaths[2], 0);
-                            }
-                            break;
-                        case "Map0": //if lastScene is the ring
-                        case "Map1": //or the pit
-                            if (fileExists[3])
-                            {
-                                PlaySoundIfFileExists(FilePaths[3], 0);
-                            }
-                            break;
-                    }
-                    break;
-                case "Park": //if currentScene is park
-                    //set height limits for sounds
-                    tooLowRespawnHeight = -3;
-                    tooLowHeight = -11;
-                    tooHighRespawnHeight = 4f;
-                    tooHighHeight = 26;
-                    if (fileExists[4])
-                    {
-                        PlaySoundIfFileExists(FilePaths[4], 0);
-                    }
-                    break;
-                case "Map0": //if currentScene is the ring
-                case "Map1": //or the pit
-                    //if ring
-                    if (currentScene == "Map0")
-                    {
-                        //set height limits for sounds
+                //Do things dependent on currentScene and lastScene
+                switch (currentScene)
+                {
+                    case "Gym": //if currentScene is gym
+                                //set height limits for sounds
                         tooLowRespawnHeight = 0;
-                        tooLowHeight = -6;
+                        tooLowHeight = -10;
                         tooHighRespawnHeight = 1;
-                        tooHighHeight = 14.5f;
-                    }
-                    //if pit
-                    else if (currentScene == "Map1")
-                    {
-                        //set height limits for sounds
-                        tooLowRespawnHeight = 0;
-                        tooLowHeight = -6;
-                        tooHighRespawnHeight = 1;
-                        tooHighHeight = 13.25f;
-                    }
-                    switch (lastScene)
-                    {
-                        case "Gym": //if matching from the gym
-                            if (fileExists[5])
-                            {
-                                PlaySoundIfFileExists(FilePaths[5], 0);
-                            }
-                            break;
-                        case "Map0": //if rematching on the ring
-                        case "Map1": //or the pit
-                            if (fileExists[6])
-                            {
-                                PlaySoundIfFileExists(FilePaths[6], 0);
-                            }
-                            break;
-                    }
-                    break;
+                        tooHighHeight = 22;
+                        switch (lastScene)
+                        {
+                            case "Loader": //if lastScene is the loader
+                                if (fileExists[1])
+                                {
+                                    PlaySoundIfFileExists(FilePaths[1], 0);
+                                }
+                                break;
+                            case "Park": //if lastScene is the park
+                                if (fileExists[2])
+                                {
+                                    PlaySoundIfFileExists(FilePaths[2], 0);
+                                }
+                                break;
+                            case "Map0": //if lastScene is the ring
+                            case "Map1": //or the pit
+                                if (fileExists[3])
+                                {
+                                    PlaySoundIfFileExists(FilePaths[3], 0);
+                                }
+                                break;
+                        }
+                        break;
+                    case "Park": //if currentScene is park
+                                 //set height limits for sounds
+                        tooLowRespawnHeight = -3;
+                        tooLowHeight = -11;
+                        tooHighRespawnHeight = 4f;
+                        tooHighHeight = 41;
+                        if (fileExists[4])
+                        {
+                            PlaySoundIfFileExists(FilePaths[4], 0);
+                        }
+                        break;
+                    case "Map0": //if currentScene is the ring
+                    case "Map1": //or the pit
+                                 //if ring
+                        if (currentScene == "Map0")
+                        {
+                            //set height limits for sounds
+                            tooLowRespawnHeight = 0;
+                            tooLowHeight = -6;
+                            tooHighRespawnHeight = 1;
+                            tooHighHeight = 44f;
+                        }
+                        //if pit
+                        else if (currentScene == "Map1")
+                        {
+                            //set height limits for sounds
+                            tooLowRespawnHeight = 0;
+                            tooLowHeight = -6;
+                            tooHighRespawnHeight = 1;
+                            tooHighHeight = 48f;
+                        }
+                        switch (lastScene)
+                        {
+                            case "Gym": //if matching from the gym
+                                if (fileExists[5])
+                                {
+                                    PlaySoundIfFileExists(FilePaths[5], 0);
+                                }
+                                break;
+                            case "Map0": //if rematching on the ring
+                            case "Map1": //or the pit
+                                if (fileExists[6])
+                                {
+                                    PlaySoundIfFileExists(FilePaths[6], 0);
+                                }
+                                break;
+                        }
+                        break;
+                }
             }
             //activate height sound listeners
             tooLowSoundListen = true;
@@ -458,7 +519,7 @@ namespace RumbleSoundsOnSceneChange
                 if ((currentScene == "Map0") || (currentScene == "Map1"))
                 {
                     playHeartbeat = true;
-                    if (localPlayer.Data.HealthPoints == 0)
+                    if ((localPlayer.Data.HealthPoints == 0) || (PlayerManager.instance.AllPlayers.Count != 2))
                     {
                         playHeartbeat = false;
                     }
@@ -482,62 +543,65 @@ namespace RumbleSoundsOnSceneChange
                     //if player hurt
                     if (localPlayer.Data.HealthPoints < localPlayerHealth)
                     {
-                        switch (localPlayerHealth - localPlayer.Data.HealthPoints)
+                        if (toggles[2])
                         {
-                            case 1:
-                                if (fileExists[9])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[9], 0);
-                                }
-                                break;
-                            case 2:
-                                if (fileExists[13])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[13], 0);
-                                }
-                                break;
-                            case 3:
-                                if (fileExists[15])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[15], 0);
-                                }
-                                break;
-                            case 4:
-                                if (fileExists[17])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[17], 0);
-                                }
-                                break;
-                            case 5:
-                                if (fileExists[19])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[19], 0);
-                                }
-                                break;
-                            case 6:
-                                if (fileExists[21])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[21], 0);
-                                }
-                                break;
-                            case 7:
-                                if (fileExists[23])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[23], 0);
-                                }
-                                break;
-                            default:
-                                if (fileExists[25])
-                                {
-                                    PlaySoundIfFileExists(FilePaths[25], 0);
-                                }
-                                break;
+                            switch (localPlayerHealth - localPlayer.Data.HealthPoints)
+                            {
+                                case 1:
+                                    if (fileExists[9])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[9], 0);
+                                    }
+                                    break;
+                                case 2:
+                                    if (fileExists[13])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[13], 0);
+                                    }
+                                    break;
+                                case 3:
+                                    if (fileExists[15])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[15], 0);
+                                    }
+                                    break;
+                                case 4:
+                                    if (fileExists[17])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[17], 0);
+                                    }
+                                    break;
+                                case 5:
+                                    if (fileExists[19])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[19], 0);
+                                    }
+                                    break;
+                                case 6:
+                                    if (fileExists[21])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[21], 0);
+                                    }
+                                    break;
+                                case 7:
+                                    if (fileExists[23])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[23], 0);
+                                    }
+                                    break;
+                                default:
+                                    if (fileExists[25])
+                                    {
+                                        PlaySoundIfFileExists(FilePaths[25], 0);
+                                    }
+                                    break;
+                            }
                         }
                     }
                     //if player healed
                     else if (localPlayer.Data.HealthPoints > localPlayerHealth)
                     {
-                        if (fileExists[11])
+                        if (fileExists[11] && toggles[6])
                         {
                             PlaySoundIfFileExists(FilePaths[11], 0);
                         }
@@ -554,12 +618,9 @@ namespace RumbleSoundsOnSceneChange
                 }
                 localPlayerHealth = localPlayer.Data.HealthPoints;
             }
-            if (playHeartbeat)
+            if (playHeartbeat && toggles[5] && fileExists[12])
             {
-                if (fileExists[12])
-                {
-                    PlaySoundIfFileExists(FilePaths[12], 3);
-                }
+                PlaySoundIfFileExists(FilePaths[12], 3);
             }
         }
 
@@ -603,6 +664,7 @@ namespace RumbleSoundsOnSceneChange
             else if ((player.transform.position.y <= tooLowHeight) && (!playedTooLowSound))
             {
                 playedTooLowSound = true;
+                playedTooHighSound = true;
                 if (fileExists[7])
                 {
                     PlaySoundIfFileExists(FilePaths[7], 1);
@@ -622,6 +684,7 @@ namespace RumbleSoundsOnSceneChange
             else if ((player.transform.position.y >= tooHighHeight) && (!playedTooHighSound))
             {
                 playedTooHighSound = true;
+                playedTooLowSound = true;
                 if (fileExists[8])
                 {
                     PlaySoundIfFileExists(FilePaths[8], 1);
@@ -633,8 +696,10 @@ namespace RumbleSoundsOnSceneChange
         {
             threadActive[threadToPlayOn] = true;
             var reader = new Mp3FileReader(FilePath);
-            var waveOut = new WaveOutEvent();
+            waveOut = new WaveOutEvent();
+            waveOut.DeviceNumber = 0;
             waveOut.Init(reader);
+            waveOut.Volume = (float)Volume / 100;
             waveOut.Play();
             while (waveOut.PlaybackState == PlaybackState.Playing)
             {
@@ -646,15 +711,33 @@ namespace RumbleSoundsOnSceneChange
             yield break;
         }
 
+        public static void StopPlayingSound()
+        {
+            waveOut.Stop();
+        }
+
         public static void PlaySound(string FilePath)
         {
             MelonCoroutines.Start(PlaySoundCoroutine(FilePath));
         }
 
+        public static void PlaySound(string FilePath, float volume)
+        {
+            MelonCoroutines.Start(PlaySoundCoroutine(FilePath));
+        }
+
+        [Obsolete]
+        private static IEnumerator PlaySoundCoroutine(string FilePath, float? volume = null)
+        {
+            MelonCoroutines.Start(PlaySoundCoroutine(FilePath));
+            yield break;
+        }
+
         private static IEnumerator PlaySoundCoroutine(string FilePath)
         {
             var reader = new Mp3FileReader(MelonEnvironment.UserDataDirectory + FilePath);
-            var waveOut = new WaveOutEvent();
+            waveOut = new WaveOutEvent();
+            waveOut.DeviceNumber = 0;
             waveOut.Init(reader);
             waveOut.Play();
             while (waveOut.PlaybackState == PlaybackState.Playing)
@@ -667,7 +750,7 @@ namespace RumbleSoundsOnSceneChange
         }
 
         //Plays the File Sound if it Exists
-        public static void PlaySoundIfFileExists(string soundFilePath, int threadToPlayOn)
+        private static void PlaySoundIfFileExists(string soundFilePath, int threadToPlayOn)
         {
             //Ensure that only one sound is playing at a time
             if (((threadToPlayOn == 3) || (threadToPlayOn == 4)) && threadActive[threadToPlayOn])
