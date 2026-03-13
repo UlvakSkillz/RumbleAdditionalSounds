@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MelonLoader;
-using RumbleSoundsOnSceneChange; // The namespace of your mod class
+using AdditionalSounds; // The namespace of your mod class
 // ...
-[assembly: MelonInfo(typeof(AdditionalSounds), "Additional Sounds", "2.4.0", "UlvakSkillz")]
+[assembly: MelonInfo(typeof(AdditionalSounds.AdditionalSounds), ModBuildInfo.Name, ModBuildInfo.Version, "UlvakSkillz")]
 [assembly: MelonGame("Buckethead Entertainment", "RUMBLE")]
 [assembly: MelonColor(255, 195, 0, 255)]
 [assembly: MelonAuthorColor(255, 195, 0, 255)]
-[assembly: VerifyLoaderVersion(0, 6, 2, true)]
+[assembly: VerifyLoaderVersion(0, 7, 2, true)]
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RumbleSoundsOnSceneChange")]
+[assembly: AssemblyTitle("Rumble_Additional_Sounds")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RumbleSoundsOnSceneChange")]
+[assembly: AssemblyProduct("Rumble_Additional_Sounds")]
 [assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
