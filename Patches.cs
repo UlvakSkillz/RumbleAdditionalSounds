@@ -177,6 +177,7 @@ namespace AdditionalSounds.Patches
         private static PooledAudioSource lowHealthSoundEffect = null;
         private static IEnumerator StartLowHealthSoundEffect()
         {
+            Melon<AdditionalSounds>.Logger.Msg("Starting Low Health Sound");
             //start playing sound
             lowHealthSoundEffect = RumbleModdingAPI.RMAPI.AudioManager.PlaySound(audioCalls[(int)SoundsOrder.LowHealthFileName][0], PlayerManager.instance.localPlayer.Controller.PlayerCamera.gameObject.transform.position);
             //wait the clip length
@@ -196,6 +197,7 @@ namespace AdditionalSounds.Patches
             //if PooledAudioSource is not null (on/playing)
             if (lowHealthSoundEffect != null)
             {
+                Melon<AdditionalSounds>.Logger.Msg("Stopping Low Health Sound");
                 //end audio
                 lowHealthSoundEffect.ReturnToPool();
                 //set to null to tell mod it's off

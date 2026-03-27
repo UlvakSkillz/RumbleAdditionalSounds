@@ -57,7 +57,7 @@ namespace AdditionalSounds
     public static class ModBuildInfo
     {
         public const string Name = "Rumble Additional Sounds";
-        public const string Version = "3.0.1";
+        public const string Version = "3.0.3";
     }
     public class AdditionalSounds : MelonMod
     {
@@ -154,8 +154,8 @@ namespace AdditionalSounds
             RumbleAdditionalSounds.AddToList("You Taking Damage", true, 0, "Toggles You Taking Damage Sounds from Playing.", new Tags { });
             RumbleAdditionalSounds.AddToList("Others Taking Damage", true, 0, "Toggles Others Taking Damage Sounds from Playing.", new Tags { });
             RumbleAdditionalSounds.AddToList("Player Boundary Kills", true, 0, "Toggles Kill Boundary Sounds from Playing.", new Tags { });
-            RumbleAdditionalSounds.AddToList("Low Health", true, 0, "Toggles Low Health Sound from Playing. In Matchmaking Only.", new Tags { });
             RumbleAdditionalSounds.AddToList("Healing", true, 0, "Toggles Healing Sounds from Playing.", new Tags { });
+            RumbleAdditionalSounds.AddToList("Low Health", true, 0, "Toggles Low Health Sound from Playing. In Matchmaking Only.", new Tags { });
             //amount to start playing the low health audio (audio stops at end of rounds or above trigger amount)
             RumbleAdditionalSounds.AddToList("Low Health Amount", 7, "Sets the Amount of Health to Start Triggering the Low Health Sound", new Tags { });
             //bool to toggle on/off Volume ModUI Mod
