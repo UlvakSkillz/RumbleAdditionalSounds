@@ -6,10 +6,9 @@ using Il2CppRUMBLE.Players.Subsystems;
 using Il2CppRUMBLE.Pools;
 using Il2CppRUMBLE.Poses;
 using MelonLoader;
-using System;
 using System.Collections;
 using UnityEngine;
-using static AdditionalSounds.AdditionalSounds;
+using static AdditionalSounds.Main;
 
 namespace AdditionalSounds.Patches
 {
@@ -20,7 +19,7 @@ namespace AdditionalSounds.Patches
         private static void Postfix(ref PlayerResetSystem __instance)
         {
             //stop if Boundary Mod Setting is off or remote player
-            if ((!togglesIsEnabled[(int)SoundsOrder.BoundaryFileName]) || (__instance.parentController.controllerType == ControllerType.Remote)) { return; }
+            if ((!Preferences.PrefPlayerBoundaryKillsToggle.Value) || (__instance.parentController.controllerType == ControllerType.Remote)) { return; }
             //get foot collider as feet are the trigger area
             Vector3 playerPos = PlayerManager.instance.localPlayer.Controller.PlayerVR.gameObject.transform.FindChild("Foot Collider").position;
             //lets go static PlayerSceneBoundary grab!
@@ -47,7 +46,7 @@ namespace AdditionalSounds.Patches
         private static void Postfix(ref PlayerPoseSystem __instance, PoseSet set)
         {
             //stop if pose Mod Setting is off
-            if (!togglesIsEnabled[(int)SoundsOrder.MoveFileNames]) { return; }
+            if (!Preferences.PrefPosesToggle.Value) { return; }
             //where to spawn audio
             Vector3 playerPos = __instance.parentController.PlayerCamera.gameObject.transform.position;
             //switch to play pose name audio
@@ -126,17 +125,17 @@ namespace AdditionalSounds.Patches
                 if (__instance.ParentController.controllerType == ControllerType.Local)
                 {
                     //if above Mod Setting amount
-                    if (newHealth > lowHealthAmount)
+                    if (newHealth > Preferences.PrefLowHealthAmount.Value)
                     { //stop low health audio
                         StopLowHealthSoundEffect();
                     }
-                    if (togglesIsEnabled[(int)SoundsOrder.HealFileNames] && fileExists[(int)SoundsOrder.HealFileNames][0])
+                    if (Preferences.PrefHealingToggle.Value && fileExists[(int)SoundsOrder.HealFileNames][0])
                     { //play local heal sound
                         RumbleModdingAPI.RMAPI.AudioManager.PlaySound(audioCalls[(int)SoundsOrder.HealFileNames][0], __instance.parentController.PlayerCamera.gameObject.transform.position);
                     }
                 }
                 //remote player healed
-                else if (togglesIsEnabled[(int)SoundsOrder.HealFileNames] && fileExists[(int)SoundsOrder.HealFileNames][1])
+                else if (Preferences.PrefHealingToggle.Value && fileExists[(int)SoundsOrder.HealFileNames][1])
                 { //play remote heal sound
                     RumbleModdingAPI.RMAPI.AudioManager.PlaySound(audioCalls[(int)SoundsOrder.HealFileNames][1], __instance.parentController.PlayerCamera.gameObject.transform.position);
                 }
@@ -147,22 +146,22 @@ namespace AdditionalSounds.Patches
                 //local player damaged
                 if (__instance.ParentController.controllerType == ControllerType.Local)
                 {
-                    if (togglesIsEnabled[(int)SoundsOrder.LocalDamageFileNames] && fileExists[(int)SoundsOrder.LocalDamageFileNames][Math.Min(previousHealth - newHealth, 8)])
+                    if (Preferences.PrefYouTakingDamageToggle.Value && fileExists[(int)SoundsOrder.LocalDamageFileNames][Math.Min(previousHealth - newHealth, 8)])
                     { //play local damage sound
                         RumbleModdingAPI.RMAPI.AudioManager.PlaySound(audioCalls[(int)SoundsOrder.LocalDamageFileNames][Math.Min(previousHealth - newHealth, 8)], __instance.parentController.PlayerCamera.gameObject.transform.position);
                     }
-                    if (togglesIsEnabled[(int)SoundsOrder.LowHealthFileName] //if toggle is on
+                    if (Preferences.PrefLowHealthToggle.Value //if toggle is on
                         && fileExists[(int)SoundsOrder.LowHealthFileName][0] //if filefound
                         && ((currentScene == "Map0") || (currentScene == "Map1")) //if matchmaking
                         && (lowHealthSoundEffect == null) //if sound not playing
                         && (newHealth > 0) //if not final hit
-                        && (newHealth <= lowHealthAmount)) //if below mod setting's trigger amount
+                        && (newHealth <= Preferences.PrefLowHealthAmount.Value)) //if below mod setting's trigger amount
                     { //play low health sound effect
                         MelonCoroutines.Start(StartLowHealthSoundEffect());
                     }
                 }
                 //remote player damaged
-                else if (togglesIsEnabled[(int)SoundsOrder.RemoteDamageFileNames] && fileExists[(int)SoundsOrder.RemoteDamageFileNames][Math.Min(previousHealth - newHealth, 8)] && (previousHealth != 0))
+                else if (Preferences.PrefOthersTakingDamageToggle.Value && fileExists[(int)SoundsOrder.RemoteDamageFileNames][Math.Min(previousHealth - newHealth, 8)] && (previousHealth != 0))
                 { //play remote damage sound
                     RumbleModdingAPI.RMAPI.AudioManager.PlaySound(audioCalls[(int)SoundsOrder.RemoteDamageFileNames][Math.Min(previousHealth - newHealth, 8)], __instance.parentController.PlayerCamera.gameObject.transform.position);
                 }
@@ -177,13 +176,13 @@ namespace AdditionalSounds.Patches
         private static PooledAudioSource lowHealthSoundEffect = null;
         private static IEnumerator StartLowHealthSoundEffect()
         {
-            Melon<AdditionalSounds>.Logger.Msg("Starting Low Health Sound");
+            Melon<Main>.Logger.Msg("Starting Low Health Sound");
             //start playing sound
             lowHealthSoundEffect = RumbleModdingAPI.RMAPI.AudioManager.PlaySound(audioCalls[(int)SoundsOrder.LowHealthFileName][0], PlayerManager.instance.localPlayer.Controller.PlayerCamera.gameObject.transform.position);
             //wait the clip length
             yield return new WaitForSeconds(lowHealthSoundEffect.audioSource.clip.length);
             //while the PooledAudioSource isn't null and mod setting is on, loop (null is when mod tells it to stop)
-            while ((lowHealthSoundEffect != null) && togglesIsEnabled[(int)SoundsOrder.LowHealthFileName])
+            while ((lowHealthSoundEffect != null) && Preferences.PrefLowHealthToggle.Value)
             {
                 //start playing sound
                 lowHealthSoundEffect = RumbleModdingAPI.RMAPI.AudioManager.PlaySound(audioCalls[(int)SoundsOrder.LowHealthFileName][0], PlayerManager.instance.localPlayer.Controller.PlayerCamera.gameObject.transform.position);
@@ -197,7 +196,7 @@ namespace AdditionalSounds.Patches
             //if PooledAudioSource is not null (on/playing)
             if (lowHealthSoundEffect != null)
             {
-                Melon<AdditionalSounds>.Logger.Msg("Stopping Low Health Sound");
+                Melon<Main>.Logger.Msg("Stopping Low Health Sound");
                 //end audio
                 lowHealthSoundEffect.ReturnToPool();
                 //set to null to tell mod it's off

@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "RumbleAdditionalSounds/1.0.0": {
+        "runtime": {
+          "RumbleAdditionalSounds.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "RumbleAdditionalSounds/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
