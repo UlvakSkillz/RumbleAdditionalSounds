@@ -56,7 +56,7 @@ namespace AdditionalSounds
     public static class BuildInfo
     {
         public const string Name = "Rumble Additional Sounds";
-        public const string Version = "3.1.0";
+        public const string Version = "3.1.1";
     }
 
     public class Main : MelonMod
@@ -134,7 +134,7 @@ namespace AdditionalSounds
         public override void OnInitializeMelon()
         {
             Preferences.InitPrefs();
-            UI.Register(this, Preferences.TogglesCategory, Preferences.PosesCategory, Preferences.SceneChangeCategory, Preferences.YouTakingDamageCategory, Preferences.OthersTakingDamageCategory, Preferences.PlayerBoundaryKillsCategory, Preferences.HealingCategory, Preferences.LowHealthCategory).OnModSaved += Save;
+            UI.Register((MelonBase)this, Preferences.TogglesCategory, Preferences.PosesCategory, Preferences.SceneChangeCategory, Preferences.YouTakingDamageCategory, Preferences.OthersTakingDamageCategory, Preferences.PlayerBoundaryKillsCategory, Preferences.HealingCategory, Preferences.LowHealthCategory).OnModSaved += Save;
             LoadSounds();
         }
 

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RumbleAdditionalSounds")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58b9caa68c6a0b136d4c657262b772dae1672b92")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+056433a67cbf616545ae3c5aa91665082576f553")]
 [assembly: System.Reflection.AssemblyProductAttribute("RumbleAdditionalSounds")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RumbleAdditionalSounds")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
